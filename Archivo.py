@@ -125,7 +125,7 @@ def game():
         level_text = score_font.render(f"Level: {level}", True, "#d7fcd4")
         SCREEN.blit(level_text, (x, y + 50))
 
-    # Show meteoritos
+    # Show asteroids
     def show_asteroid():
         if visible_asteroid:
             for i in range(len(asteroid_x)):
@@ -137,7 +137,7 @@ def game():
                     asteroid_y.pop(i)
                     break
 
-            # Crear nuevos meteoritos
+            # Create new asteroids
             if len(asteroid_x) < 10:  # Número máximo de meteoritos en pantalla
                 asteroid_x.append(random.randint(50, 750))
                 asteroid_y.append(random.randint(-200, -50))
@@ -238,9 +238,11 @@ def game():
                     score += 1
                     bullet_y = 500
 
+
             if enemy_y[i] > 450:  # cuando rebase este punto pierdes
                 for j in range(number_of_enemies):
                     enemy_y[j] = 1000  # que vaya hasta abajo de la pantalla como si desapareciera
+
                 visible_asteroid = False
                 final_message()
                 break
@@ -406,3 +408,4 @@ def main_menu():
 
 
 main_menu()
+
