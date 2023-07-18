@@ -125,7 +125,7 @@ def game():
         level_text = score_font.render(f"Level: {level}", True, "#d7fcd4")
         SCREEN.blit(level_text, (x, y + 50))
 
-    # Show meteoritos
+    # Show asteroids
     def show_asteroid():
         if visible_asteroid:
             for i in range(len(asteroid_x)):
@@ -137,7 +137,7 @@ def game():
                     asteroid_y.pop(i)
                     break
 
-            # Crear nuevos meteoritos
+            # Create new asteroids
             if len(asteroid_x) < 10:  # Número máximo de meteoritos en pantalla
                 asteroid_x.append(random.randint(50, 750))
                 asteroid_y.append(random.randint(-200, -50))
@@ -163,3 +163,96 @@ def game():
         distance = math.sqrt(math.pow(x_sub, 2) + math.pow(y_sub, 2))
         if distance < 27:
             return True
+    # Game loop
+    is_running = True
+    while is_running:
+        SCREEN.blit(BG, (0, 0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                is_running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    player_x_change -= 7.0
+                if event.key == pygame.K_RIGHT:
+                    player_x_change += 7.0
+                if event.key == pygame.K_SPACE:
+                    if not bullet_visible:
+                        bullet_x = player_x
+                    shoot_bullet(bullet_x, bullet_y)
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT or pygame.K_RIGHT:
+                    player_x_change = 0
+
+        # Update player location
+        player_x += player_x_change
+
+        # Keep player inside the screen
+        if player_x <= 0:
+            player_x = 0
+        elif player_x >= 736:
+            player_x = 736
+
+        for i in range(number_of_enemies):
+            # Update enemy location
+            enemy_x[i] += global_enemy_speed * enemy_x_change[i]
+
+            # Keep enemies inside the screen
+            if enemy_x[i] <= 0:
+                enemy_x_change[i] += 0.3
+                enemy_y[i] += enemy_y_change[i]
+            elif enemy_x[i] >= 736:
+                enemy_x_change[i] -= 0.3
+                enemy_y[i] += enemy_y_change[i]
+
+            # Detect collision
+            collision = detect_collision(enemy_x[i], enemy_y[i], bullet_x, bullet_y)
+            if collision:
+                enemy_x[i] = random.randint(0, 736)
+                enemy_y[i] = random.randint(30, 200)
+                bullet_visible = False
+                score += 1
+                bullet_y = 500
+
+                if score % 10 == 0:
+                    level += 1
+                    global_enemy_speed *= speed_increase_factor  # Aumentar la velocidad global de los enemigos
+
+            if score == 30 and not visible_asteroid:
+                visible_asteroid = True
+                # Crear 10 meteoritos y asignar sus coordenadas iniciales
+                for j in range(10):
+                    asteroid_x.append(random.randint(50, 750))
+                    asteroid_y.append(random.randint(-200, -50))
+            if score == 50:
+                final_message_win()
+                visible_asteroid = False
+                break
+
+            for j in range(len(asteroid_x)):
+                collision2 = detect_collision(asteroid_x[j], asteroid_y[j], bullet_x, bullet_y)
+                if collision2:
+                    asteroid_x[j] = random.randint(50, 750)
+                    asteroid_y[j] = random.randint(-200, 50)
+                    bullet_visible = False
+                    score += 1
+                    bullet_y = 500
+
+            if enemy_y[i] > 450:  # when they reach this point you lose
+                for j in range(number_of_enemies):
+                    enemy_y[j] = 1000  # so they disappear
+                visible_asteroid = False
+                final_message()
+                break
+            for h in range(len(asteroid_x)):
+                collision_with_meteorite = detect_collision(asteroid_x[i], asteroid_y[i], player_x, player_y)
+                if collision_with_meteorite:
+                    enemy_y[h] = 1000
+                    player_y = 1000
+                    visible_asteroid = False
+                    final_message()
+                    break
+
+            # Show enemy
+            enemy(enemy_x[i], enemy_y[i], i)
+
