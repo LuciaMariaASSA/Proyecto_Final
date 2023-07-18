@@ -238,9 +238,11 @@ def game():
                     score += 1
                     bullet_y = 500
 
-            if enemy_y[i] > 450:  # when they reach this point you lose
+
+            if enemy_y[i] > 450:  # cuando rebase este punto pierdes
                 for j in range(number_of_enemies):
-                    enemy_y[j] = 1000  # so they disappear
+                    enemy_y[j] = 1000  # que vaya hasta abajo de la pantalla como si desapareciera
+
                 visible_asteroid = False
                 final_message()
                 break
@@ -255,7 +257,6 @@ def game():
 
             # Show enemy
             enemy(enemy_x[i], enemy_y[i], i)
-            
 
         # Shoot bullet
         if bullet_y <= -64:
